@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css"><link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script><script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/proj4.js"></script>
+        <script src="js/proj4leaflet.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/Candido_superficies_1.js"></script>
+        <script src="data/Candido_especies_2.js"></script>
+        <script src="data/Nuevacapaborrador_3.js"></script>
+        <script>
+        var crs = new L.Proj.CRS('EPSG:25830', '+proj=utm +zone=30 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs', {
+            resolutions: [2800, 1400, 700, 350, 175, 84, 42, 21, 11.2, 5.6, 2.8, 1.4, 0.7, 0.35, 0.14, 0.07],
+        });
+        var map = L.map('map', {
+            crs: crs,
+            continuousWorld: false,
+            worldCopyJump: false, 
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[37.686392529621706,-0.9625707807442081],[37.688506810294314,-0.9612156138336732]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        document.querySelector(".leaflet-popup-pane").addEventListener("load", function(event) {
+          var tagName = event.target.tagName,
+            popup = map._popup;
+          // Also check if flag is already set.
+          if (tagName === "IMG" && popup && !popup._updated) {
+            popup._updated = true; // Set flag to prevent looping.
+            popup.update();
+          }
+        }, true);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_OSMStandard_0');
+        map.getPane('pane_OSMStandard_0').style.zIndex = 400;
+        var layer_OSMStandard_0 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSMStandard_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OSMStandard_0;
+        map.addLayer(layer_OSMStandard_0);
+        function pop_Candido_superficies_1(feature, layer) {
+            var popupContent = '<table>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Candido_superficies_1_0(feature) {
+            switch(String(feature.properties['Elemento'])) {
+                case 'jardin':
+                    return {
+                pane: 'pane_Candido_superficies_1',
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(144,226,144,0.5607843137254902)',
+                interactive: true,
+            }
+                    break;
+                case 'pavimento blando':
+                    return {
+                pane: 'pane_Candido_superficies_1',
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(246,236,123,0.592156862745098)',
+                interactive: true,
+            }
+                    break;
+                case 'tierra desnuda':
+                    return {
+                pane: 'pane_Candido_superficies_1',
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(238,217,173,0.5803921568627451)',
+                interactive: true,
+            }
+                    break;
+                case 'fuente':
+                    return {
+                pane: 'pane_Candido_superficies_1',
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(126,206,243,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'otros':
+                    return {
+                pane: 'pane_Candido_superficies_1',
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(76,76,76,0.7568627450980392)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Candido_superficies_1');
+        map.getPane('pane_Candido_superficies_1').style.zIndex = 401;
+        map.getPane('pane_Candido_superficies_1').style['mix-blend-mode'] = 'normal';
+        var layer_Candido_superficies_1 = new L.geoJson(json_Candido_superficies_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Candido_superficies_1',
+            layerName: 'layer_Candido_superficies_1',
+            pane: 'pane_Candido_superficies_1',
+            onEachFeature: pop_Candido_superficies_1,
+            style: style_Candido_superficies_1_0,
+        });
+        bounds_group.addLayer(layer_Candido_superficies_1);
+        map.addLayer(layer_Candido_superficies_1);
+        function pop_Candido_especies_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['_Especie'] !== null ? autolinker.link(feature.properties['_Especie'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Candido_especies_2_0(feature) {
+            switch(String(feature.properties['CLASI'])) {
+                case 'Arbol':
+                    return {
+                pane: 'pane_Candido_especies_2',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(125,173,100,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 3.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(125,173,100,0.4)',
+                interactive: true,
+            }
+                    break;
+                case 'Arbustiva':
+                    return {
+                pane: 'pane_Candido_especies_2',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(219,221,114,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 3.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,221,114,0.4)',
+                interactive: true,
+            }
+                    break;
+                case 'Cactacea':
+                    return {
+                pane: 'pane_Candido_especies_2',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(184,221,127,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 3.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(184,221,127,0.4)',
+                interactive: true,
+            }
+                    break;
+                case 'Herbacea':
+                    return {
+                pane: 'pane_Candido_especies_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(126,221,161,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(126,221,161,0.4)',
+                interactive: true,
+            }
+                    break;
+                case 'Palmera':
+                    return {
+                pane: 'pane_Candido_especies_2',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(137,159,127,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(137,159,127,0.4)',
+                interactive: true,
+            }
+                    break;
+                case 'Suculenta':
+                    return {
+                pane: 'pane_Candido_especies_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(68,169,167,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(68,169,167,0.4)',
+                interactive: true,
+            }
+                    break;
+                case 'Trepadora':
+                    return {
+                pane: 'pane_Candido_especies_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(221,202,154,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(221,202,154,0.4)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Candido_especies_2');
+        map.getPane('pane_Candido_especies_2').style.zIndex = 402;
+        map.getPane('pane_Candido_especies_2').style['mix-blend-mode'] = 'normal';
+        var layer_Candido_especies_2 = new L.geoJson(json_Candido_especies_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Candido_especies_2',
+            layerName: 'layer_Candido_especies_2',
+            pane: 'pane_Candido_especies_2',
+            onEachFeature: pop_Candido_especies_2,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Candido_especies_2_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Candido_especies_2);
+        map.addLayer(layer_Candido_especies_2);
+        function pop_Nuevacapaborrador_3(feature, layer) {
+        }
+
+        function style_Nuevacapaborrador_3_0() {
+            return {
+                pane: 'pane_Nuevacapaborrador_3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,158,23,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Nuevacapaborrador_3');
+        map.getPane('pane_Nuevacapaborrador_3').style.zIndex = 403;
+        map.getPane('pane_Nuevacapaborrador_3').style['mix-blend-mode'] = 'normal';
+        var layer_Nuevacapaborrador_3 = new L.geoJson(json_Nuevacapaborrador_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Nuevacapaborrador_3',
+            layerName: 'layer_Nuevacapaborrador_3',
+            pane: 'pane_Nuevacapaborrador_3',
+            onEachFeature: pop_Nuevacapaborrador_3,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Nuevacapaborrador_3_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Nuevacapaborrador_3);
+        map.addLayer(layer_Nuevacapaborrador_3);
+        setBounds();
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"CLASI": "str","_Especie": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_CLASI = document.createElement('div');
+            div_CLASI.id = "div_CLASI";
+            div_CLASI.className= "filterselect";
+            document.getElementById("menu").appendChild(div_CLASI);
+            sel_CLASI = document.createElement('select');
+            sel_CLASI.multiple = true;
+            sel_CLASI.size = 7;
+            sel_CLASI.id = "sel_CLASI";
+            var CLASI_options_str = "<option value='' unselected></option>";
+            sel_CLASI.onchange = function(){filterFunc()};
+            CLASI_options_str  += '<option value="Arbol">Arbol</option>';
+            CLASI_options_str  += '<option value="Arbustiva">Arbustiva</option>';
+            CLASI_options_str  += '<option value="Cactacea">Cactacea</option>';
+            CLASI_options_str  += '<option value="Herbacea">Herbacea</option>';
+            CLASI_options_str  += '<option value="Palmera">Palmera</option>';
+            CLASI_options_str  += '<option value="Suculenta">Suculenta</option>';
+            CLASI_options_str  += '<option value="Trepadora">Trepadora</option>';
+            sel_CLASI.innerHTML = CLASI_options_str;
+            div_CLASI.appendChild(sel_CLASI);
+            var lab_CLASI = document.createElement('div');
+            lab_CLASI.innerHTML = 'CLASI';
+            lab_CLASI.className = 'filterlabel';
+            div_CLASI.appendChild(lab_CLASI);
+            var reset_CLASI = document.createElement('div');
+            reset_CLASI.innerHTML = 'clear filter';
+            reset_CLASI.className = 'filterlabel';
+            reset_CLASI.onclick = function() {
+                var options = document.getElementById("sel_CLASI").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_CLASI.appendChild(reset_CLASI);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div__Especie = document.createElement('div');
+            div__Especie.id = "div__Especie";
+            div__Especie.className= "filterselect";
+            document.getElementById("menu").appendChild(div__Especie);
+            sel__Especie = document.createElement('select');
+            sel__Especie.multiple = true;
+            sel__Especie.size = 10;
+            sel__Especie.id = "sel__Especie";
+            var _Especie_options_str = "<option value='' unselected></option>";
+            sel__Especie.onchange = function(){filterFunc()};
+            _Especie_options_str  += '<option value="Abutilon hulseanum">Abutilon hulseanum</option>';
+            _Especie_options_str  += '<option value="Acanthus mollis">Acanthus mollis</option>';
+            _Especie_options_str  += '<option value="Aeonium hierrense">Aeonium hierrense</option>';
+            _Especie_options_str  += '<option value="Agave americana">Agave americana</option>';
+            _Especie_options_str  += '<option value="Agave attenuata">Agave attenuata</option>';
+            _Especie_options_str  += '<option value="Agave fourcroydes">Agave fourcroydes</option>';
+            _Especie_options_str  += '<option value="Agave salmiana">Agave salmiana</option>';
+            _Especie_options_str  += '<option value="Agave striata">Agave striata</option>';
+            _Especie_options_str  += '<option value="Ailanthus altissima">Ailanthus altissima</option>';
+            _Especie_options_str  += '<option value="Allium millenium">Allium millenium</option>';
+            _Especie_options_str  += '<option value="Aloe maculata">Aloe maculata</option>';
+            _Especie_options_str  += '<option value="Aloe marlothii">Aloe marlothii</option>';
+            _Especie_options_str  += '<option value="Aloe vera">Aloe vera</option>';
+            _Especie_options_str  += '<option value="Asparagus densiflorus">Asparagus densiflorus</option>';
+            _Especie_options_str  += '<option value="Blechnum discolor">Blechnum discolor</option>';
+            _Especie_options_str  += '<option value="Bougainvillea glabra">Bougainvillea glabra</option>';
+            _Especie_options_str  += '<option value="Brachychiton populneum">Brachychiton populneum</option>';
+            _Especie_options_str  += '<option value="Bryophyllum serrata">Bryophyllum serrata</option>';
+            _Especie_options_str  += '<option value="Bulbine frutescens">Bulbine frutescens</option>';
+            _Especie_options_str  += '<option value="Campsis radicans">Campsis radicans</option>';
+            _Especie_options_str  += '<option value="Casuarina cunninghamiana">Casuarina cunninghamiana</option>';
+            _Especie_options_str  += '<option value="Cereus jamacaru">Cereus jamacaru</option>';
+            _Especie_options_str  += '<option value="Cereus peruvianus">Cereus peruvianus</option>';
+            _Especie_options_str  += '<option value="Chamaerops humilis">Chamaerops humilis</option>';
+            _Especie_options_str  += '<option value="Citrus aurantium">Citrus aurantium</option>';
+            _Especie_options_str  += '<option value="Cleistocactus strausii">Cleistocactus strausii</option>';
+            _Especie_options_str  += '<option value="Cocos nucifera">Cocos nucifera</option>';
+            _Especie_options_str  += '<option value="Cupressus arizonica">Cupressus arizonica</option>';
+            _Especie_options_str  += '<option value="Cupressus sempervirens">Cupressus sempervirens</option>';
+            _Especie_options_str  += '<option value="Cylindropuntia acanthocarpa">Cylindropuntia acanthocarpa</option>';
+            _Especie_options_str  += '<option value="Cylindropuntia imbricata">Cylindropuntia imbricata</option>';
+            _Especie_options_str  += '<option value="Dimorphotheca ecklonis">Dimorphotheca ecklonis</option>';
+            _Especie_options_str  += '<option value="Dracaena cordyline">Dracaena cordyline</option>';
+            _Especie_options_str  += '<option value="Duranta erecta">Duranta erecta</option>';
+            _Especie_options_str  += '<option value="Echinopsis peruviana">Echinopsis peruviana</option>';
+            _Especie_options_str  += '<option value="Eucalyptus camaldulensis">Eucalyptus camaldulensis</option>';
+            _Especie_options_str  += '<option value="Euphorbia candelabrum">Euphorbia candelabrum</option>';
+            _Especie_options_str  += '<option value="Euphorbia ingens">Euphorbia ingens</option>';
+            _Especie_options_str  += '<option value="Euphorbia neriifolia">Euphorbia neriifolia</option>';
+            _Especie_options_str  += '<option value="Euphorbia resinifera">Euphorbia resinifera</option>';
+            _Especie_options_str  += '<option value="Euphorbia tirucalli">Euphorbia tirucalli</option>';
+            _Especie_options_str  += '<option value="Euphorbia virosa">Euphorbia virosa</option>';
+            _Especie_options_str  += '<option value="Ferocactus histrix">Ferocactus histrix</option>';
+            _Especie_options_str  += '<option value="Ficus carica">Ficus carica</option>';
+            _Especie_options_str  += '<option value="Hibiscus Syriacus">Hibiscus Syriacus</option>';
+            _Especie_options_str  += '<option value="Kalanchoe beharensis">Kalanchoe beharensis</option>';
+            _Especie_options_str  += '<option value="Kleinia neriifolia">Kleinia neriifolia</option>';
+            _Especie_options_str  += '<option value="Kroenleinia grusonii">Kroenleinia grusonii</option>';
+            _Especie_options_str  += '<option value="Lagunaria patersonia">Lagunaria patersonia</option>';
+            _Especie_options_str  += '<option value="Laurus nobilis">Laurus nobilis</option>';
+            _Especie_options_str  += '<option value="Lavandula angustifolia">Lavandula angustifolia</option>';
+            _Especie_options_str  += '<option value="Ligustrum lucidum">Ligustrum lucidum</option>';
+            _Especie_options_str  += '<option value="Maclura pomifera">Maclura pomifera</option>';
+            _Especie_options_str  += '<option value="Melia azedarach">Melia azedarach</option>';
+            _Especie_options_str  += '<option value="Monstera deliciosa">Monstera deliciosa</option>';
+            _Especie_options_str  += '<option value="Musa x paradisiaca">Musa x paradisiaca</option>';
+            _Especie_options_str  += '<option value="Myrtillocactus geometrizans">Myrtillocactus geometrizans</option>';
+            _Especie_options_str  += '<option value="Myrtus communis">Myrtus communis</option>';
+            _Especie_options_str  += '<option value="Olea europaea">Olea europaea</option>';
+            _Especie_options_str  += '<option value="Opuntia helleri">Opuntia helleri</option>';
+            _Especie_options_str  += '<option value="Opuntia microdasys">Opuntia microdasys</option>';
+            _Especie_options_str  += '<option value="Opuntia spiralis">Opuntia spiralis</option>';
+            _Especie_options_str  += '<option value="Pachycereus marginatus">Pachycereus marginatus</option>';
+            _Especie_options_str  += '<option value="Pachycereus pringlei">Pachycereus pringlei</option>';
+            _Especie_options_str  += '<option value="Phoenix dactylifera">Phoenix dactylifera</option>';
+            _Especie_options_str  += '<option value="Phyllostachys aurea">Phyllostachys aurea</option>';
+            _Especie_options_str  += '<option value="Pinus halepensis">Pinus halepensis</option>';
+            _Especie_options_str  += '<option value="Pittosporum undulatum">Pittosporum undulatum</option>';
+            _Especie_options_str  += '<option value="Plumbago auriculata">Plumbago auriculata</option>';
+            _Especie_options_str  += '<option value="Portulacaria afra">Portulacaria afra</option>';
+            _Especie_options_str  += '<option value="Portulacaria oleracea">Portulacaria oleracea</option>';
+            _Especie_options_str  += '<option value="Pyracantha coccinea">Pyracantha coccinea</option>';
+            _Especie_options_str  += '<option value="Rosa spp.">Rosa spp.</option>';
+            _Especie_options_str  += '<option value="Rosmarinus officinalis">Rosmarinus officinalis</option>';
+            _Especie_options_str  += '<option value="Rotheca myricoides">Rotheca myricoides</option>';
+            _Especie_options_str  += '<option value="Schinus molle">Schinus molle</option>';
+            _Especie_options_str  += '<option value="Selenicereus megalanthus">Selenicereus megalanthus</option>';
+            _Especie_options_str  += '<option value="Selenicereus testudo">Selenicereus testudo</option>';
+            _Especie_options_str  += '<option value="Strelitzia nicolai">Strelitzia nicolai</option>';
+            _Especie_options_str  += '<option value="Tamarix spp.">Tamarix spp.</option>';
+            _Especie_options_str  += '<option value="Tecoma capensis">Tecoma capensis</option>';
+            _Especie_options_str  += '<option value="Tetraclinis articulata">Tetraclinis articulata</option>';
+            _Especie_options_str  += '<option value="Tipuana Tipu">Tipuana Tipu</option>';
+            _Especie_options_str  += '<option value="Washingtonia">Washingtonia</option>';
+            _Especie_options_str  += '<option value="Washingtonia filifera">Washingtonia filifera</option>';
+            _Especie_options_str  += '<option value="Yucca aloifolia">Yucca aloifolia</option>';
+            _Especie_options_str  += '<option value="Yucca filamentosa">Yucca filamentosa</option>';
+            _Especie_options_str  += '<option value="Yucca glauca">Yucca glauca</option>';
+            sel__Especie.innerHTML = _Especie_options_str;
+            div__Especie.appendChild(sel__Especie);
+            var lab__Especie = document.createElement('div');
+            lab__Especie.innerHTML = '_Especie';
+            lab__Especie.className = 'filterlabel';
+            div__Especie.appendChild(lab__Especie);
+            var reset__Especie = document.createElement('div');
+            reset__Especie.innerHTML = 'clear filter';
+            reset__Especie.className = 'filterlabel';
+            reset__Especie.onclick = function() {
+                var options = document.getElementById("sel__Especie").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div__Especie.appendChild(reset__Especie);
+        resetLabels([layer_Candido_especies_2]);
+        map.on("zoomend", function(){
+            resetLabels([layer_Candido_especies_2]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_Candido_especies_2]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_Candido_especies_2]);
+        });
+        </script>
+    </body>
+</html>
